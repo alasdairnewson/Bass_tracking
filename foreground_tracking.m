@@ -14,12 +14,13 @@ function foreground_tracking(obj, event,vid,demoParameters)
     
     thresh = 80;
     fileName = demoParameters.fileName;
+    imgSize = size(imgIn);
     
     if isempty(handlesInput)
         % if first execution, we create the figure objects
         subplot(2,2,1);
         handlesInput=imshow(imgIn);
-        title('Current image');
+        title(['Current image, resolution = ' num2str(imgSize(2)) 'x' num2str(imgSize(1))]);
 
         %initialise the frame number
         nFrames = 1;
@@ -28,7 +29,7 @@ function foreground_tracking(obj, event,vid,demoParameters)
         bgModel = bgModel.bgModelOut;
         H = load(['models/' fileName '_homography.mat'],'H');
         H = H.H;
-        img2Dplane = create_2D_plane(H,bgModel);
+        img2Dplane = create_2D_plane(H,bgModel,demoParameters.xDistance+1,demoParameters.yDistance+1);
 
         % show foreground detection
         subplot(2,2,2);

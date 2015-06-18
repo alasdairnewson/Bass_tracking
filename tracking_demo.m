@@ -1,5 +1,5 @@
 
-clear all;
+close all;
 addpath('tracking');
 addpath('2D_projection');
 
@@ -12,7 +12,7 @@ hFigure = figure;
 NumberFrameDisplayPerSecond = 10;
 
 %initialise video feed
-vidObj = videoinput('macvideo');
+vidObj = videoinput(demoParameters.videoInputName,demoParameters.videoInputId);
 set(vidObj,'FramesPerTrigger',1);
 % Go on forever until stopped
 set(vidObj,'TriggerRepeat',Inf);

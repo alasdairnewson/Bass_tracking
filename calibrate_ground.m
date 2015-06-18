@@ -8,7 +8,7 @@ load('demo_parameters.mat');
 
 fileName = demoParameters.fileName;
 
-vidObj = videoinput('macvideo');
+vidObj = videoinput(demoParameters.videoInputName,demoParameters.videoInputId);
 set(vidObj,'ReturnedColorSpace','rgb');
 %get 
 frame = imresize(getsnapshot(vidObj),demoParameters.resizeScale);
@@ -17,42 +17,23 @@ delete(vidObj);
 figure;imshow(frame);
 imgSize = size(frame);
 
-%get first vanishing line, on the y axis, of distance q from the origin
-[lineX1,lineY1] = getline();
-lineX1 = min(max(round(lineX1),0),imgSize(2));
-lineX1 = lineX1(1:2);
-lineY1 = min(max(round(lineY1),0),imgSize(1));
-lineY1 = lineY1(1:2);
-
-%get second point on the x axis, at r distance from the origin
-[lineX2,lineY2] = getline();
-lineX2 = min(max(round(lineX2),0),imgSize(2));
-lineX2 = lineX2(1:2);
-lineY2 = min(max(round(lineY2),0),imgSize(1));
-lineY2 = lineY2(1:2);
+%get the rectangle on the floor, starting from the (0,0) point
+[ptsX,ptsY] = getline();
+if(numel(ptsX)<4 || numel(ptsY)<4)
+    error('Error, the homography estimation needs 4 points.');
+end
+ptsX = min(max(round(ptsX(1:4)),0),imgSize(2));
+ptsY = min(max(round(ptsY(1:4)),0),imgSize(1));
 
 xDistance = input('Please indicate the distance on the x axis : ');
 yDistance = input('Please indicate the distance on the y axis : ');
 
-landmarks = [lineX1 lineY1; lineX2 lineY2];
+landmarks = [ptsX ptsY];
 distances = [xDistance;yDistance];
 
-[H] = estimate_homography(landmarks,[0 0; 0 distances(2);distances(1) 0;distances(1) distances(2)]);
-
-%now show the transformed coordinate system
-[gridX,gridY] = meshgrid(1:imgSize(2),1:imgSize(1));
-
-originalCoords = [gridX(:)';gridY(:)'; ones(1,numel(gridX))];
-
-transformedCoords = H*originalCoords;
-%normalise the coordinates with respect to the last row
-transformedCoords = transformedCoords./(repmat(transformedCoords(3,:),[3 1]));
-
-% %     transformedCoords = transformedCoords(1:2,:);
-% %     transformedCoordsX = reshape(transformedCoords(1,:),imgSize);
-% %     transformedCoordsY = reshape(transformedCoords(2,:),imgSize);
-%figure;imshow(transformedCoordsX,[]);
-%figure;imshow(transformedCoordsY,[]);
+%real-world coordinates of the rectangle (in [x,y]):
+% [0 0 (top left); 0 yDistance (bottom left); xDistance yDistance (bottom right); yDistance 0 (top right)]
+H = estimate_homography(landmarks,[0 0; 0 distances(2);distances(1) distances(2);distances(1) 0]);
 
 %save the homography
 if (~exist('models','dir'))
@@ -60,8 +41,8 @@ if (~exist('models','dir'))
 end
 save(['models/' fileName '_homography.mat'],'H');
 
-demoParameters.xDistance = 20;
-demoParameters.yDistance = 10;
+demoParameters.xDistance = xDistance;
+demoParameters.yDistance = yDistance;
 
 save('demo_parameters.mat','demoParameters');
     

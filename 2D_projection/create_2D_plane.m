@@ -1,12 +1,12 @@
 
 
 
-function[imgOut] = create_2D_plane(H,bgImg)
+function[imgOut] = create_2D_plane(H,bgImg,maxX,maxY)
 
     imgSize = size(bgImg);
 
     discreteFloorStep = 0.01;
-    [gridX,gridY] = meshgrid(0:discreteFloorStep:20,0:discreteFloorStep:10);
+    [gridX,gridY] = meshgrid(0:discreteFloorStep:maxX,0:discreteFloorStep:maxY);
     originalCoords = [gridX(:)';gridY(:)'; ones(1,numel(gridX))];
     transformedCoords = inv(H)*originalCoords;
     transformedCoords = transformedCoords./(repmat(transformedCoords(3,:),[3 1]));
