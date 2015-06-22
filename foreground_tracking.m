@@ -55,20 +55,13 @@ function foreground_tracking(obj, event,vid,demoParameters)
         nFrames = nFrames+1;
         set(handlesInput,'CData',imgIn);
         
-% %         %show background
-% %         set(handlesBg,'CData',bgModel);
-% %         title('Background model');
-        
         fgImg = double(max(abs(double(imgIn)-double(bgModel))>thresh,[],3));
         fgImg = filter_foreground(fgImg);
-        
-%         fgImg = zeros(size(fgImg));
-%         fgImg((round(size(fgImg,1)/2)-20):(round(size(fgImg,1)/2)+20),...
-%                (round(size(fgImg,2)/2)-20):(round(size(fgImg,2)/2)+20) ) = 1;
-           
+ 
         set(handlesFg,'CData',fgImg);
         
         %show tracking
+        fgImg = zeros(size(fgImg));
         [trackedFrame,trackingData] = track_objects(imgIn,logical(fgImg),trackingData);
         set(handlesTracking,'CData',trackedFrame);
         
@@ -78,10 +71,13 @@ function foreground_tracking(obj, event,vid,demoParameters)
             tracksBboxes(ii,:) = double(tracksTemp(ii).bbox);
         end
         
-        [~,maxAreaTrack] = min(tracksBboxes(:,3).*tracksBboxes(:,4));
-        posY = round(tracksBboxes(maxAreaTrack,2)+tracksBboxes(maxAreaTrack,4));
-        posX = round(tracksBboxes(maxAreaTrack,1)+floor(tracksBboxes(maxAreaTrack,4))/2);
-        imgProjected = imresize(project_2D_point(H,img2Dplane,posY,posX),[size(imgIn,1) size(imgIn,2)]);
-        set(handles2D,'CData',imgProjected);
+        %if there are tracks to show, display them
+        if (exist('tracksBboxes','var'))
+            [~,maxAreaTrack] = min(tracksBboxes(:,3).*tracksBboxes(:,4));
+            posY = round(tracksBboxes(maxAreaTrack,2)+tracksBboxes(maxAreaTrack,4));
+            posX = round(tracksBboxes(maxAreaTrack,1)+floor(tracksBboxes(maxAreaTrack,4))/2);
+            imgProjected = imresize(project_2D_point(H,img2Dplane,posY,posX),[size(imgIn,1) size(imgIn,2)]);
+            set(handles2D,'CData',imgProjected);
+        end
     end
 end

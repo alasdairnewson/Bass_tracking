@@ -1,5 +1,6 @@
 
 close all;
+clear all;
 addpath('tracking');
 addpath('2D_projection');
 
@@ -7,7 +8,7 @@ load('demo_parameters.mat');
 
 hFigure = figure;
 
-%dbstop in foreground_tracking at 82;
+%dbstop in foreground_tracking at 75;
 
 NumberFrameDisplayPerSecond = 10;
 
